@@ -1,16 +1,16 @@
-from asyncio import Task
+from asyncio import Task, ensure_future
 from typing import Callable, Coroutine, Any
 
 
 async def await_my_func(f: Callable[..., Coroutine] | Task | Coroutine) -> Any:
-    # На вход приходит одна из стадий жизненного цикла корутины, необходимо вернуть результат
-    # её выполнения.
-
     if isinstance(f, Callable):
-        # YOUR CODE GOES HERE
-    elif isinstance(f, Task):
-        # YOUR CODE GOES HERE
-    elif isinstance(f, Coroutine):
-        # YOUR CODE GOES HERE
-    else:
-        raise ValueError('invalid argument')
+        f = f()
+
+    if isinstance(f, Task):
+        return await f
+
+    if isinstance(f, Coroutine):
+        task = ensure_future(f)
+        return await task
+
+    raise ValueError('Invalid argument')
